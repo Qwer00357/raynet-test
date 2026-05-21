@@ -70,6 +70,76 @@ const getDateFromValue = (value?: string | null) => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+const getPreviousRange = (
+  period: string | undefined,
+  range: { from: Date | null; to: Date | null } | null
+) => {
+  if (!range || (!range.from && !range.to)) {
+    return null;
+  }
+
+  if (period === 'this_month' || period === 'last_month') {
+    const previousStart = new Date(range.from ?? range.to ?? new Date());
+    previousStart.setMonth(previousStart.getMonth() - 1, 1);
+    previousStart.setHours(0, 0, 0, 0);
+    const previousEnd = new Date(previousStart);
+    previousEnd.setMonth(previousStart.getMonth() + 1, 0);
+    previousEnd.setHours(23, 59, 59, 999);
+    return { from: previousStart, to: previousEnd };
+  }
+
+  if (period === 'this_quarter') {
+    const previousStart = new Date(range.from ?? range.to ?? new Date());
+    previousStart.setMonth(previousStart.getMonth() - 3, 1);
+    previousStart.setHours(0, 0, 0, 0);
+    const previousEnd = new Date(previousStart);
+    previousEnd.setMonth(previousStart.getMonth() + 3, 0);
+    previousEnd.setHours(23, 59, 59, 999);
+    return { from: previousStart, to: previousEnd };
+  }
+
+  if (period === 'this_year') {
+    const previousStart = new Date(range.from ?? range.to ?? new Date());
+    previousStart.setFullYear(previousStart.getFullYear() - 1, 0, 1);
+    previousStart.setHours(0, 0, 0, 0);
+    const previousEnd = new Date(previousStart);
+    previousEnd.setFullYear(previousStart.getFullYear(), 11, 31);
+    previousEnd.setHours(23, 59, 59, 999);
+    return { from: previousStart, to: previousEnd };
+  }
+
+  const fromDate = range.from ?? range.to;
+  const toDate = range.to ?? range.from;
+
+  if (!fromDate || !toDate) {
+    return null;
+  }
+
+  const durationMs = toDate.getTime() - fromDate.getTime();
+  const previousTo = new Date(fromDate.getTime() - 1);
+  const previousFrom = new Date(previousTo.getTime() - durationMs);
+  return { from: previousFrom, to: previousTo };
+};
+
+const isWithinRange = (
+  date: Date | null,
+  range: { from: Date | null; to: Date | null } | null
+) => {
+  if (!range || !date) {
+    return true;
+  }
+
+  if (range.from && date < range.from) {
+    return false;
+  }
+
+  if (range.to && date > range.to) {
+    return false;
+  }
+
+  return true;
+};
+
 // Data endpoint
 app.get('/api/hello', (req, res) => {
   try {
@@ -125,18 +195,9 @@ app.get('/api/leaderboard', (req, res) => {
         .filter(Boolean)
       : [];
 
-    const filteredData = jsonData.data.filter((item) => {
-      const validFromDate = getDateFromValue(item.validFrom);
+    const previousRange = getPreviousRange(period, range);
 
-      if (range) {
-        if (range.from && validFromDate && validFromDate < range.from) {
-          return false;
-        }
-        if (range.to && validFromDate && validFromDate > range.to) {
-          return false;
-        }
-      }
-
+    const matchesFilters = (item: BusinessCaseResponse['data'][number]) => {
       if (ownerId && String(item.owner?.id) !== ownerId) {
         return false;
       }
@@ -161,7 +222,29 @@ app.get('/api/leaderboard', (req, res) => {
       }
 
       return true;
+    };
+
+    const filteredData = jsonData.data.filter((item) => {
+      const validFromDate = getDateFromValue(item.validFrom);
+
+      if (!isWithinRange(validFromDate, range)) {
+        return false;
+      }
+
+      return matchesFilters(item);
     });
+
+    const previousData = previousRange
+      ? jsonData.data.filter((item) => {
+        const validFromDate = getDateFromValue(item.validFrom);
+
+        if (!isWithinRange(validFromDate, previousRange)) {
+          return false;
+        }
+
+        return matchesFilters(item);
+      })
+      : [];
 
     const statsByOwner = new Map<
       string,
@@ -186,14 +269,47 @@ app.get('/api/leaderboard', (req, res) => {
       statsByOwner.set(ownerName, entry);
     });
 
+    const previousStatsByOwner = new Map<
+      string,
+      { name: string; deals: number; wins: number; totalSum: number }
+    >();
+
+    previousData.forEach((item) => {
+      const ownerName = item.owner?.fullName || 'Neznámý obchodník';
+      const entry = previousStatsByOwner.get(ownerName) || {
+        name: ownerName,
+        deals: 0,
+        wins: 0,
+        totalSum: 0
+      };
+
+      entry.deals += 1;
+      if (item.status === 'E_WIN') {
+        entry.wins += 1;
+      }
+      entry.totalSum += item.totalAmountInDefaultCurrency || 0;
+
+      previousStatsByOwner.set(ownerName, entry);
+    });
+
     const items = Array.from(statsByOwner.values())
-      .map((entry) => ({
-        name: entry.name,
-        deals: entry.deals,
-        winRate:
-          entry.deals > 0 ? Math.round((entry.wins / entry.deals) * 1000) / 10 : 0,
-        totalSum: Math.round(entry.totalSum)
-      }))
+      .map((entry) => {
+        const previousEntry = previousStatsByOwner.get(entry.name);
+        const previousTotal = previousEntry?.totalSum ?? 0;
+        const trend =
+          previousTotal > 0
+            ? Math.round(((entry.totalSum - previousTotal) / previousTotal) * 1000) / 10
+            : null;
+
+        return {
+          name: entry.name,
+          deals: entry.deals,
+          winRate:
+            entry.deals > 0 ? Math.round((entry.wins / entry.deals) * 1000) / 10 : 0,
+          totalSum: Math.round(entry.totalSum),
+          trend
+        };
+      })
       .sort((a, b) => {
         const direction = order === 'asc' ? 1 : -1;
         const aValue = a[sortBy as keyof typeof a] ?? 0;
