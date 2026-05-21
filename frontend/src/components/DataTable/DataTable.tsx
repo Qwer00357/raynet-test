@@ -14,10 +14,10 @@ export function DataTable({ data, startIndex = 0 }: DataTableProps) {
           <thead>
             <tr>
               <th>#</th>
-              <th>Obchodnik</th>
-              <th>Deals</th>
-              <th>Win Rate (%)</th>
-              <th>Total Sum</th>
+              <th>Obchodník</th>
+              <th>Obchody</th>
+              <th>Úspěšnost (%)</th>
+              <th>Celkem</th>
             </tr>
           </thead>
           <tbody>
