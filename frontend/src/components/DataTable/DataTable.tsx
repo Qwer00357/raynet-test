@@ -1,8 +1,8 @@
-import { DataRow } from '../../hooks/useFetchData';
+import { LeaderBoardRow } from '../../hooks/useFetchData';
 import './DataTable.css';
 
 interface DataTableProps {
-  data: DataRow[];
+  data: LeaderBoardRow[];
 }
 
 export function DataTable({ data }: DataTableProps) {
@@ -14,25 +14,27 @@ export function DataTable({ data }: DataTableProps) {
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Code</th>
-              <th>Type</th>
+              <th>#</th>
+              <th>Obchodnik</th>
+              <th>Deals</th>
+              <th>Win Rate (%)</th>
+              <th>Total Sum</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((row) => (
-              <tr key={row.id}>
-                <td>{row.id}</td>
+            {data.map((row, idx) => (
+              <tr key={row.name}>
+                <td>{idx + 1}</td>
                 <td>{row.name}</td>
-                <td>{row.code}</td>
-                <td>{row.type}</td>
+                <td>{row.deals}</td>
+                <td>{row.winRate}</td>
+                <td>{row.totalSum}</td>
               </tr>
             ))}
           </tbody>
         </table>
       ) : (
-        <p>No data available yet.</p>
+        <p>No leaderboard data available yet.</p>
       )}
     </div>
   );

@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 
-export interface DataRow {
-  id: number;
+export interface LeaderBoardRow {
   name: string;
-  code: string;
-  type: string;
+  deals: number;
+  winRate: number; // percent, e.g. 75.0
+  totalSum: number;
 }
 
 export interface ApiResponse {
   message: string;
   timestamp: string;
   status: string;
-  dataRows: DataRow[];
+  items: LeaderBoardRow[];
 }
 
 export function useFetchData() {
-  const [data, setData] = useState<DataRow[]>([]);
+  const [data, setData] = useState<LeaderBoardRow[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -28,7 +28,7 @@ export function useFetchData() {
         throw new Error('Failed to fetch data');
       }
       const result: ApiResponse = await response.json();
-      setData(result.dataRows);
+      setData(result.items || []);
     } catch (err) {
       setData([]);
     }
