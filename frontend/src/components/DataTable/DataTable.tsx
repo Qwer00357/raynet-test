@@ -9,8 +9,6 @@ interface DataTableProps {
 export function DataTable({ data, startIndex = 0 }: DataTableProps) {
   return (
     <div className="data-table-container">
-      <h1 className="data-table-title">Pořadí obchodníků</h1>
-
       {data.length > 0 ? (
         <table className="data-table">
           <thead>
@@ -35,7 +33,7 @@ export function DataTable({ data, startIndex = 0 }: DataTableProps) {
           </tbody>
         </table>
       ) : (
-        <p>No leaderboard data available yet.</p>
+        <p>Pro zvolené filtry nejsou žádná data.</p>
       )}
     </div>
   );

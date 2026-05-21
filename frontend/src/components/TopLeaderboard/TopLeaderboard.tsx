@@ -13,26 +13,32 @@ export function TopLeaderboard({ data }: TopLeaderboardProps) {
       <div className="top-leaderboard-header">
         <span className="top-leaderboard-label">Pořadí obchodníků</span>
       </div>
-      <div className="top-leaderboard-grid">
-        {topItems.map((item, index) => (
-          <div key={item.name} className="leaderboard-card">
-            <div className="leaderboard-card-header">
-              <div className="leaderboard-position">{index + 1}.</div>
-              <div className="leaderboard-name">{item.name}</div>
-            </div>
-            <div className="leaderboard-stats">
-              <div className="stat-block">
-                <div className="stat-value">{item.deals}</div>
-                <div className="stat-label">dealů</div>
+      {topItems.length > 0 ? (
+        <div className="top-leaderboard-grid">
+          {topItems.map((item, index) => (
+            <div key={item.name} className="leaderboard-card">
+              <div className="leaderboard-card-header">
+                <div className="leaderboard-position">{index + 1}.</div>
+                <div className="leaderboard-name">{item.name}</div>
               </div>
-              <div className="stat-block">
-                <div className="stat-value">{new Intl.NumberFormat('cs-CZ').format(item.totalSum)} Kč</div>
-                <div className="stat-label">Celkem</div>
+              <div className="leaderboard-stats">
+                <div className="stat-block">
+                  <div className="stat-value">{item.deals}</div>
+                  <div className="stat-label">dealů</div>
+                </div>
+                <div className="stat-block">
+                  <div className="stat-value">
+                    {new Intl.NumberFormat('cs-CZ').format(item.totalSum)} Kč
+                  </div>
+                  <div className="stat-label">Celkem</div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p>Pro zvolené filtry nejsou žádná data.</p>
+      )}
     </section>
   );
 }
