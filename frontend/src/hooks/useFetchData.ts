@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 
+export interface DataRow {
+  id: number;
+  name: string;
+  code: string;
+  type: string;
+}
+
 export interface ApiResponse {
   message: string;
   timestamp: string;
   status: string;
-  dataRows: LeaderBoardRow[];
-}
-
-export interface LeaderBoardRow {
-  name: string;
-  deals: number;
-  winRate: number;
-  totalSum: number;
+  dataRows: DataRow[];
 }
 
 export function useFetchData() {
-  const [data, setData] = useState<LeaderBoardRow[]>([]);
+  const [data, setData] = useState<DataRow[]>([]);
 
   useEffect(() => {
     fetchData();

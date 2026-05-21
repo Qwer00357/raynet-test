@@ -16,7 +16,7 @@ const currentMonth = now.getMonth();
 const currentYear = now.getFullYear();
 
 // Data endpoint
-app.get('/api/hello', (req, res) => {
+app.get('/api/leaderboard', (req, res) => {
   try {
     const dataPath = path.join(process.cwd(), '../data/data.json');
     const rawData = fs.readFileSync(dataPath, 'utf-8');
@@ -30,7 +30,7 @@ app.get('/api/hello', (req, res) => {
     }));
 
     res.json({
-      message: 'Hello World from Raynet API!',
+      message: 'Leaderboard data from Raynet API',
       timestamp: new Date().toISOString(),
       status: 'ok',
       dataRows
@@ -52,7 +52,7 @@ app.get('/api/hello', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server běží na http://localhost:${PORT}`);
-  console.log(`📋 API dostupné na http://localhost:${PORT}/api/hello`);
+  console.log(`📋 API dostupné na http://localhost:${PORT}/api/leaderboard`);
 });
 
 export default app;
