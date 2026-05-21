@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FilterOptions, SelectedFilters } from '../../hooks/useFetchData';
 import './Topbar.css';
 
@@ -40,10 +40,10 @@ export function Topbar({
     switch (key) {
       case 'quickFilter':
         return selectedFilters.quickFilter
-          ? quickOptions.find((option) => option.id === selectedFilters.quickFilter)?.label ?? 'Mé filtry'
-          : 'Mé filtry';
+          ? quickOptions.find((option) => option.id === selectedFilters.quickFilter)?.label ?? 'Rychlý filtr'
+          : 'Rychlý filtr';
       case 'period':
-        return selectedFilters.period || 'Tento měsíc';
+        return selectedFilters.period || 'Období';
       case 'ownerId':
         return selectedFilters.ownerId
           ? filterOptions.owners.find((owner) => owner.id === selectedFilters.ownerId)?.label ?? 'Obchodník'
@@ -53,7 +53,7 @@ export function Topbar({
       case 'status':
         return selectedFilters.status
           ? statusLabels[selectedFilters.status] || selectedFilters.status
-          : 'Tým';
+          : 'Stav';
       default:
         return '';
     }
@@ -76,137 +76,137 @@ export function Topbar({
 
   return (
     <div className="topbar">
-      <div className="topbar-left">
+      <div className="topbar-header">
         <h2 className="topbar-title">Žebříček obchodníků</h2>
-        <div className="topbar-filters">
-          <div className="filter-group">
-            <button
-              className={`filter-btn ${isActive('quickFilter') ? 'active' : ''}`}
-              onClick={() => toggleDropdown('quickFilter')}
-            >
-              {getLabel('quickFilter')} ▾
-            </button>
-            {openFilter === 'quickFilter' && (
-              <div className="filter-dropdown">
-                {quickOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    className={`dropdown-item ${selectedFilters.quickFilter === option.id ? 'selected' : ''}`}
-                    onClick={() => selectOption('quickFilter', option.id === 'all' ? null : option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
+        <div className="topbar-right">
+          <div className="filter-pill">
+            {selectedFilters.quickFilter || selectedFilters.period || selectedFilters.ownerId || selectedFilters.region || selectedFilters.status
+              ? 'Filtrováno'
+              : 'Žádný filtr'}
           </div>
-
-          <div className="filter-group">
-            <button
-              className={`filter-btn ${isActive('period') ? 'active' : ''}`}
-              onClick={() => toggleDropdown('period')}
-            >
-              {getLabel('period')} ▾
-            </button>
-            {openFilter === 'period' && (
-              <div className="filter-dropdown">
-                {filterOptions.periods.map((option) => (
-                  <button
-                    key={option.id}
-                    className={`dropdown-item ${selectedFilters.period === option.id ? 'selected' : ''}`}
-                    onClick={() => selectOption('period', option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="filter-group">
-            <button
-              className={`filter-btn ${isActive('ownerId') ? 'active' : ''}`}
-              onClick={() => toggleDropdown('ownerId')}
-            >
-              {getLabel('ownerId')} ▾
-            </button>
-            {openFilter === 'ownerId' && (
-              <div className="filter-dropdown">
-                {filterOptions.owners.map((option) => (
-                  <button
-                    key={option.id}
-                    className={`dropdown-item ${selectedFilters.ownerId === option.id ? 'selected' : ''}`}
-                    onClick={() => selectOption('ownerId', option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="filter-group">
-            <button
-              className={`filter-btn ${isActive('region') ? 'active' : ''}`}
-              onClick={() => toggleDropdown('region')}
-            >
-              {getLabel('region')} ▾
-            </button>
-            {openFilter === 'region' && (
-              <div className="filter-dropdown">
-                {filterOptions.regions.map((option) => (
-                  <button
-                    key={option.id}
-                    className={`dropdown-item ${selectedFilters.region === option.id ? 'selected' : ''}`}
-                    onClick={() => selectOption('region', option.id)}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="filter-group">
-            <button
-              className={`filter-btn ${isActive('status') ? 'active' : ''}`}
-              onClick={() => toggleDropdown('status')}
-            >
-              {getLabel('status')} ▾
-            </button>
-            {openFilter === 'status' && (
-              <div className="filter-dropdown">
-                {filterOptions.statuses.map((option) => (
-                  <button
-                    key={option.id}
-                    className={`dropdown-item ${selectedFilters.status === option.id ? 'selected' : ''}`}
-                    onClick={() => selectOption('status', option.id)}
-                  >
-                    {statusLabels[option.id] ?? option.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <button
+            className="icon-btn"
+            onClick={() => resetFilters()}
+            aria-label="Reset filters"
+          >
+            ♻️
+          </button>
+          <button className="primary action-btn" disabled={loading}>
+            {loading ? 'Načítám...' : '+ Nový záznam'}
+          </button>
         </div>
       </div>
 
-      <div className="topbar-right">
-        <div className="filter-pill">
-          {selectedFilters.quickFilter || selectedFilters.period || selectedFilters.ownerId || selectedFilters.region || selectedFilters.status
-            ? 'Filtrováno'
-            : 'Žádný filtr'}
+      <div className="topbar-filters-row">
+        <div className="filter-group">
+          <button
+            className={`filter-btn ${isActive('quickFilter') ? 'active' : ''}`}
+            onClick={() => toggleDropdown('quickFilter')}
+          >
+            {getLabel('quickFilter')} ▾
+          </button>
+          {openFilter === 'quickFilter' && (
+            <div className="filter-dropdown">
+              {quickOptions.map((option) => (
+                <button
+                  key={option.id}
+                  className={`dropdown-item ${selectedFilters.quickFilter === option.id ? 'selected' : ''}`}
+                  onClick={() => selectOption('quickFilter', option.id === 'all' ? null : option.id)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        <button
-          className="icon-btn"
-          onClick={() => resetFilters()}
-          aria-label="Reset filters"
-        >
-          ♻️
-        </button>
-        <button className="primary action-btn" disabled={loading}>
-          {loading ? 'Načítám...' : '+ Nový záznam'}
-        </button>
+
+        <div className="filter-group">
+          <button
+            className={`filter-btn ${isActive('period') ? 'active' : ''}`}
+            onClick={() => toggleDropdown('period')}
+          >
+            {getLabel('period')} ▾
+          </button>
+          {openFilter === 'period' && (
+            <div className="filter-dropdown">
+              {filterOptions.periods.map((option) => (
+                <button
+                  key={option.id}
+                  className={`dropdown-item ${selectedFilters.period === option.id ? 'selected' : ''}`}
+                  onClick={() => selectOption('period', option.id)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="filter-group">
+          <button
+            className={`filter-btn ${isActive('ownerId') ? 'active' : ''}`}
+            onClick={() => toggleDropdown('ownerId')}
+          >
+            {getLabel('ownerId')} ▾
+          </button>
+          {openFilter === 'ownerId' && (
+            <div className="filter-dropdown">
+              {filterOptions.owners.map((option) => (
+                <button
+                  key={option.id}
+                  className={`dropdown-item ${selectedFilters.ownerId === option.id ? 'selected' : ''}`}
+                  onClick={() => selectOption('ownerId', option.id)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="filter-group">
+          <button
+            className={`filter-btn ${isActive('region') ? 'active' : ''}`}
+            onClick={() => toggleDropdown('region')}
+          >
+            {getLabel('region')} ▾
+          </button>
+          {openFilter === 'region' && (
+            <div className="filter-dropdown">
+              {filterOptions.regions.map((option) => (
+                <button
+                  key={option.id}
+                  className={`dropdown-item ${selectedFilters.region === option.id ? 'selected' : ''}`}
+                  onClick={() => selectOption('region', option.id)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="filter-group">
+          <button
+            className={`filter-btn ${isActive('status') ? 'active' : ''}`}
+            onClick={() => toggleDropdown('status')}
+          >
+            {getLabel('status')} ▾
+          </button>
+          {openFilter === 'status' && (
+            <div className="filter-dropdown">
+              {filterOptions.statuses.map((option) => (
+                <button
+                  key={option.id}
+                  className={`dropdown-item ${selectedFilters.status === option.id ? 'selected' : ''}`}
+                  onClick={() => selectOption('status', option.id)}
+                >
+                  {statusLabels[option.id] ?? option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

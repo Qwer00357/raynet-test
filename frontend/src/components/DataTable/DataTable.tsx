@@ -8,7 +8,7 @@ interface DataTableProps {
 export function DataTable({ data }: DataTableProps) {
   return (
     <div className="data-table-container">
-      <h1 className="data-table-title">Leaderboard</h1>
+      <h1 className="data-table-title">Pořadí obchodníků</h1>
 
       {data.length > 0 ? (
         <table className="data-table">
