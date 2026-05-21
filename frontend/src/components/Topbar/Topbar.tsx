@@ -23,6 +23,14 @@ const statusLabels: Record<string, string> = {
   F_LOST: 'Prohrané'
 };
 
+const periodLabels: Record<string, string> = {
+  this_month: 'Tento měsíc',
+  last_month: 'Minulý měsíc',
+  this_quarter: 'Tento kvartál',
+  this_year: 'Tento rok',
+  custom: 'Vlastní období'
+};
+
 export function Topbar({
   filterOptions,
   selectedFilters,
@@ -43,13 +51,19 @@ export function Topbar({
           ? quickOptions.find((option) => option.id === selectedFilters.quickFilter)?.label ?? 'Rychlý filtr'
           : 'Rychlý filtr';
       case 'period':
-        return selectedFilters.period || 'Období';
+        return selectedFilters.period
+          ? periodLabels[selectedFilters.period] ??
+          filterOptions.periods.find((option) => option.id === selectedFilters.period)?.label ??
+          'Období'
+          : 'Období';
       case 'ownerId':
         return selectedFilters.ownerId
           ? filterOptions.owners.find((owner) => owner.id === selectedFilters.ownerId)?.label ?? 'Obchodník'
           : 'Obchodník';
       case 'region':
-        return selectedFilters.region || 'Region';
+        return selectedFilters.region
+          ? filterOptions.regions.find((region) => region.id === selectedFilters.region)?.label ?? 'Region'
+          : 'Region';
       case 'status':
         return selectedFilters.status
           ? statusLabels[selectedFilters.status] || selectedFilters.status
@@ -57,6 +71,31 @@ export function Topbar({
       default:
         return '';
     }
+  };
+
+  const filterKeyLabels: Record<keyof SelectedFilters, string> = {
+    quickFilter: 'Rychlý filtr',
+    period: 'Období',
+    ownerId: 'Obchodník',
+    region: 'Region',
+    status: 'Stav'
+  };
+
+  const activeFilterKeys: (keyof SelectedFilters)[] = [
+    'quickFilter',
+    'period',
+    'ownerId',
+    'region',
+    'status'
+  ];
+
+  const clearFilter = (key: keyof SelectedFilters) => {
+    if (key === 'quickFilter') {
+      updateFilter({ quickFilter: null });
+      return;
+    }
+
+    updateFilter({ [key]: null } as Partial<SelectedFilters>);
   };
 
   const toggleDropdown = (key: string) => {
@@ -79,22 +118,25 @@ export function Topbar({
       <div className="topbar-header">
         <h2 className="topbar-title">Žebříček obchodníků</h2>
         <div className="topbar-right">
-          <div className="filter-pill">
-            {selectedFilters.quickFilter || selectedFilters.period || selectedFilters.ownerId || selectedFilters.region || selectedFilters.status
-              ? 'Filtrováno'
-              : 'Žádný filtr'}
-          </div>
-          <button
-            className="icon-btn"
-            onClick={() => resetFilters()}
-            aria-label="Reset filters"
-          >
-            ♻️
-          </button>
           <button className="primary action-btn" disabled={loading}>
             {loading ? 'Načítám...' : '+ Nový záznam'}
           </button>
         </div>
+      </div>
+
+      <div className="active-filters">
+        {activeFilterKeys
+          .filter((key) => isActive(key))
+          .map((key) => (
+            <button
+              key={key}
+              className="filter-chip"
+              onClick={() => clearFilter(key)}
+              aria-label={`Odebrat filtr ${filterKeyLabels[key]}`}
+            >
+              {filterKeyLabels[key]}: {getLabel(key)} ✕
+            </button>
+          ))}
       </div>
 
       <div className="topbar-filters-row">
@@ -135,7 +177,7 @@ export function Topbar({
                   className={`dropdown-item ${selectedFilters.period === option.id ? 'selected' : ''}`}
                   onClick={() => selectOption('period', option.id)}
                 >
-                  {option.label}
+                  {periodLabels[option.id] ?? option.label}
                 </button>
               ))}
             </div>
@@ -207,6 +249,13 @@ export function Topbar({
             </div>
           )}
         </div>
+        <button
+          className="icon-btn reset-btn filter-reset-btn"
+          onClick={() => resetFilters()}
+          aria-label="Reset filters"
+        >
+          Vyčistit filtry
+        </button>
       </div>
     </div>
   );
