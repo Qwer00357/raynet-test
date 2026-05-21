@@ -1,0 +1,28 @@
+{
+  "name": "raynet-internship-project",
+  "version": "1.0.0",
+  "description": "Základní scaffold projekt pro výběrové řízení stážistů",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:backend": "npm run dev -w backend",
+    "build": "npm run build -w frontend && npm run build -w backend",
+    "test": "npm run test -ws"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "internship",
+    "react",
+    "typescript",
+    "express"
+  ],
+  "author": "Raynet",
+  "license": "MIT"
+}
