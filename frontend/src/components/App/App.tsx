@@ -2,6 +2,7 @@ import { useFetchData } from '../../hooks/useFetchData';
 import { DataTable } from '../DataTable/DataTable';
 import { Sidebar } from '../Sidebar/Sidebar';
 import { Topbar } from '../Topbar/Topbar';
+import { TopLeaderboard } from '../TopLeaderboard/TopLeaderboard';
 import './App.css';
 
 function App() {
@@ -26,7 +27,8 @@ function App() {
           loading={loading}
         />
         <div className="main-container">
-          <DataTable data={data} />
+          <TopLeaderboard data={data} />
+          <DataTable data={data.slice(6, 10)} startIndex={6} />
         </div>
       </div>
     </div>

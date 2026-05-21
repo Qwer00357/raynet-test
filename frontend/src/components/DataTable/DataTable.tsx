@@ -3,9 +3,10 @@ import './DataTable.css';
 
 interface DataTableProps {
   data: LeaderBoardRow[];
+  startIndex?: number;
 }
 
-export function DataTable({ data }: DataTableProps) {
+export function DataTable({ data, startIndex = 0 }: DataTableProps) {
   return (
     <div className="data-table-container">
       <h1 className="data-table-title">Pořadí obchodníků</h1>
@@ -24,11 +25,11 @@ export function DataTable({ data }: DataTableProps) {
           <tbody>
             {data.map((row, idx) => (
               <tr key={row.name}>
-                <td>{idx + 1}</td>
+                <td>{idx + 1 + startIndex}</td>
                 <td>{row.name}</td>
                 <td>{row.deals}</td>
                 <td>{row.winRate}</td>
-                <td>{row.totalSum}</td>
+                <td>{new Intl.NumberFormat('cs-CZ').format(row.totalSum)}</td>
               </tr>
             ))}
           </tbody>
