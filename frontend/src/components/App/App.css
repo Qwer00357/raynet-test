@@ -4,6 +4,9 @@
   background-color: #ffffff;
 }
 
+.main-column{display:flex;flex-direction:column;flex:1}
 .main-container {
   flex: 1;
+  padding: 18px;
+  overflow:auto;
 }
